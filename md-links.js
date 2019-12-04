@@ -1,28 +1,54 @@
 const fs = require('fs');
-const path = require('path');
+//const path = require('path');
 const marked = require('marked');
 const fetch = require ('node-fetch') 
-//let fetchUrl = require("fetch").fetchUrl
+
 
 
 //Condicion que verifica que si es un archivo que termina en  md
 
-// const md = (path)=>{
+const md = (path)=>{
 
-// if(path.slice(-3) == ".md"){
-// console.log(path)
+if(path.slice(-3) == ".md"){
+console.log(path)
 
-// }
-// else{
-//   console.log("error");
+}
+else{
+  console.log("error");
   
-// }};
+}};
+
+//let path1 = process.argv[2];
+
+//Crear Funcion general
+let mdLinks=(path1 , options )=>{
+let promiseMdLinks= new Promise((resolve,reject)=> {   
+    if(!path1 || !options){
+       reject(console.log("Escribe una ruta"));
+        //return resolve(console.log("dsajdhsa"));
+    }
+        fs.stat(path1, (err, stats) => {
+            if (stats.isFile() ) {
+               //(console.log("es un archivo"));
+               resolve(mdLinks2())
+            }
+            else {
+                console.log("es un directorio");
+                
+            }
+           });        
+        })
+        return promiseMdLinks
+}
+// mdLinks(path1)
+
+//Crear Funcion para leer directorios
 
 
 //Funcion para leer archivos
-const mdLinks =(path=> {
+const mdLinks2 =(path1=> {
   let ret = new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', (err, data) => {
+    fs.readFile(path1, 'utf8', (err, data) => {
 
       if (err) return reject(err);
       return resolve(data);
@@ -35,10 +61,11 @@ const mdLinks =(path=> {
 
 })
 
-//Funcion para extraer href ,text , file
+
+// // //Funcion para extraer href ,text , file
 const arraysLinks = (() =>{
 let printsLinks = new Promise((resolve, reject) =>{
-mdLinks(process.argv[2])
+mdLinks2(process.argv[2])
 .then(datos =>{
   let renderer = new marked.Renderer();
   let links = [];  
@@ -67,16 +94,16 @@ mdLinks(process.argv[2])
    return printsLinks 
 })
 
-arraysLinks()
 
 
+// Funcion para la opcion validate
 let validate =() =>{
-//let promiseFetch = new Promise((resolve ,reject)=>{
+let promiseFetch = new Promise((resolve ,reject)=>{
 arraysLinks().then((links)=>{
-links.map(element => {
+let linksFechResult=links.map(element => {
     return fetch(element.href).then(res =>{
        // v.status=res.statusText;
-       if(res.ok){
+      if(res.ok){
        console.log(element.href +  res.status);
        console.log(res.statusText);
        // v.statusCode = res.status;
@@ -94,19 +121,18 @@ links.map(element => {
 
 })
 
+})
+return promiseFetch
 }
 
-validate()
+ validate()
 
-if (require.main === module) {
-  mdLinks(process.argv[2]).then;  
+ // if (require.main === module) {
+//   mdLinks(process.argv[2]).then;  
 
-} else {
-  module.exports = mdLinks;
-};
+// } else {
+//   module.exports = mdLinks;
+// };
 
 
-module.exports = () => {
-  // ...
-
-};
+module.exports = mdLinks2;
